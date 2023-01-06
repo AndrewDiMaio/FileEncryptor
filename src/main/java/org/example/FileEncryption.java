@@ -12,6 +12,24 @@ import java.util.Scanner;
 import javax.crypto.*;
 
 public class FileEncryption {
+    public static void main(String[] args) {
+        File inputFile = new File("src/main/resources/inputFile.txt");
+        File encryptedFile = new File("src/main/resources/outputFile.txt");
+        File decryptedFile = new File("src/main/resources/decrypted.txt");
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter 1 for encrypt or 2 for decrypt");
+        int option = Integer.parseInt(scanner.nextLine());
+        System.out.println("Enter encryption password:");
+        String password = scanner.nextLine();
+
+        if(option == 1) {
+            // Encrypt the file
+            encrypt(password, inputFile, encryptedFile);
+        }else {
+            // Decrypt the file
+            decrypt(password, encryptedFile, decryptedFile);
+        }
+    }
     private static SecretKeySpec secretKey;
     private static byte[] key;
 
@@ -36,17 +54,7 @@ public class FileEncryption {
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
-            FileInputStream inputStream = new FileInputStream(inputFile);
-            byte[] inputBytes = new byte[(int) inputFile.length()];
-            inputStream.read(inputBytes);
-
-            byte[] outputBytes = cipher.doFinal(inputBytes);
-
-            FileOutputStream outputStream = new FileOutputStream(outputFile);
-            outputStream.write(outputBytes);
-
-            inputStream.close();
-            outputStream.close();
+            inputStream(inputFile, outputFile, cipher);
         } catch (NoSuchPaddingException | NoSuchAlgorithmException | BadPaddingException |
                  IllegalBlockSizeException | IOException | InvalidKeyException e) {
             e.printStackTrace();
@@ -59,36 +67,27 @@ public class FileEncryption {
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
 
-            FileInputStream inputStream = new FileInputStream(inputFile);
-            byte[] inputBytes = new byte[(int) inputFile.length()];
-            inputStream.read(inputBytes);
-
-            byte[] outputBytes = cipher.doFinal(inputBytes);
-
-            FileOutputStream outputStream = new FileOutputStream(outputFile);
-            outputStream.write(outputBytes);
-
-            inputStream.close();
-            outputStream.close();
+            inputStream(inputFile, outputFile, cipher);
         } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException | IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static void main(String[] args) {
-        File inputFile = new File("src/main/resources/inputFile.txt");
-        File encryptedFile = new File("src/main/resources/outputFile.txt");
-        File decryptedFile = new File("src/main/resources/decrypted.txt");
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter password: ");
-        String password = scanner.nextLine();
-        // Encrypt the file
-        //encrypt(password, inputFile, encryptedFile);
+    private static void inputStream(File inputFile, File outputFile, Cipher cipher) throws IOException, IllegalBlockSizeException, BadPaddingException {
+        FileInputStream inputStream = new FileInputStream(inputFile);
+        byte[] inputBytes = new byte[(int) inputFile.length()];
+        inputStream.read(inputBytes);
 
-        // Decrypt the file
-        decrypt(password, encryptedFile, decryptedFile);
+        byte[] outputBytes = cipher.doFinal(inputBytes);
+
+        FileOutputStream outputStream = new FileOutputStream(outputFile);
+        outputStream.write(outputBytes);
+
+        inputStream.close();
+        outputStream.close();
     }
 }
+
 
 
 
